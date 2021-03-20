@@ -17,7 +17,7 @@ def add_element(dict, key, value):
 myDict = {}
 
 # Extract data from one of the databases and put it in the dictionary myDict
-data1 = json.loads(urlopen('https://data.sbb.ch/api/records/1.0/search/?dataset=parkrail-sale-app-history&q=&rows=10000&facet=start&facet=end&facet=facility_name&facet=created&facet=booking_status').read())
+data1 = json.loads(urlopen('https://data.sbb.ch/api/records/1.0/search/?dataset=parkrail-sale-app-history&q=&rows=100&facet=start&facet=end&facet=facility_name&facet=created&facet=booking_status').read())
 for i in data1['records']:
     try:
         temp_start = datetime.datetime.strptime(i['fields']['start'], "%Y-%m-%dT%H:%M:%S.%f%z")
@@ -30,7 +30,7 @@ for i in data1['records']:
     add_element(myDict, i['fields']['facility_name'], [temp_start, temp_end])
 
 # Extract data from another database and put it in the dictionary myDict
-data2 = json.loads(urlopen("https://data.sbb.ch/api/records/1.0/search/?dataset=parkrail-sale-backend&q=&rows=10000&facet=start&facet=end&facet=sales_channel&facet=created_at").read())
+data2 = json.loads(urlopen("https://data.sbb.ch/api/records/1.0/search/?dataset=parkrail-sale-backend&q=&rows=100&facet=start&facet=end&facet=sales_channel&facet=created_at").read())
 for i in data2['records']:
     try:
         temp_start = datetime.datetime.strptime(i['fields']['start'], "%Y-%m-%dT%H:%M:%S.%f%z")
@@ -138,8 +138,12 @@ def simple_prediction(station, date):
 
 
 test_prediction = simple_prediction('Zug', '2019-10-12 22:14')
-print(test_prediction)
 
+
+
+
+print(test_prediction)
+print(myDict['Zug'][-1])
 
 
 
