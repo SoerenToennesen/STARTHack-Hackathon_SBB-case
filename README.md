@@ -18,6 +18,7 @@ In the project directory, you can run:
 For all the python modules used, run pip install (...), which are present in the algorithm.py file.
 ### `pip install (...)`
 
+The data selected from the provided datasets from SBB initially only select the first 100 rows. These parameters should be changed for a more accurate representation of data. Just by providing the API link, you can select up to 10000 rows, but if more are needed, the dataset needs to be downloaded.
 
 ## What does the code entail
 
