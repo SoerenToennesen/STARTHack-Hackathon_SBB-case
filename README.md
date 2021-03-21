@@ -2,6 +2,12 @@
 
 As team Part-Time Hackers for the STARTHack hackathon, we've been assigned the case to work on the Swiss Federal Station, with regards to predicting parking occupancy for a given location and date(+time of day).
 
+The GitHub for the case is provided here:
+https://github.com/START-Global/SBB-STARTHACK21
+
+The hackathon is provided here:
+https://www.starthack.eu/
+
 ## How to run the code
 
 Make sure both node.js, pip, python, npm is installed on your system.
