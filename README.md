@@ -24,3 +24,16 @@ The code includes a frontend application developed with reactjs, which communica
 The backend entirely runs on algorithm.py.
 
 An alternative solution and approach for saving data and using this formatted data is shown in start.py, which uses test.csv as the data format required.
+
+## More info. and pitch
+A video of our pitch can be found at:
+https://www.youtube.com/watch?v=l4dAfJDMBnc&feature=emb_logo&ab_channel=MichelleLee
+
+## Contributors
+
+The authors and developers of this project are:
+
+Michelle S. Lee
+lions-code
+Fuego
+Søren Tønnesen
