@@ -22,65 +22,19 @@ export default class Application extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleDateChange = this.handleDateChange.bind(this);
+        this.handleTimeChange = this.handleTimeChange.bind(this);
+        this.randomData = this.randomData.bind(this);
 
         this.state = {
             items: [],
             date: '',
             time: '', 
+            timeInt: 0,
             selected: {station: '', date: ''},
             submitted: false,
-            sampleData: [
-                {
-                    station: 'Burgdorf',
-                    name: '05:00',
-                    value: "0"
-                },
-                {
-                    station: 'Burgdorf',
-                    name: '06:00',
-                    value: "1"
-                },
-                {
-                    station: 'Burgdorf',
-                    name: '07:00',
-                    value: "2"
-                },
-                {
-                    station: 'Burgdorf',
-                    name: '08:00',
-                    value: "4"
-                },
-                {
-                    station: 'Burgdorf',
-                    name: '09:00',
-                    value: "4"
-                },
-                {
-                    station: 'Burgdorf',
-                    name: '10:00',
-                    value: "4"
-                },
-                {
-                    station: 'Burgdorf',
-                    name: '11:00',
-                    value: "3"
-                },
-                {
-                    station: 'Burgdorf',
-                    name: '12:00',
-                    value: "2"
-                },
-                {
-                    station: 'Burgdorf',
-                    name: '13:00',
-                    value: "3"
-                },
-                {
-                    station: 'Burgdorf',
-                    name: '14:00',
-                    value: "3"
-                }
-            ]
+            persent: '',
+            data: []
         }
     }
 
@@ -89,6 +43,8 @@ export default class Application extends Component {
         fetch('https://data.sbb.ch/api/records/1.0/search/?dataset=mobilitat&q=&facet=stationsbezeichnung')
         .then(res => res.json())
         .then(data => this.setState({ items: data.facet_groups[0].facets }))
+
+        this.randomData()
 
         // Get current date and time.
         let currentDate = new Date();
@@ -116,6 +72,7 @@ export default class Application extends Component {
     handleSubmit() {
         if (this.state.selected.station !== '') {
             this.setState({submitted: true})
+            this.randomData()
         }
     }
 
@@ -126,6 +83,38 @@ export default class Application extends Component {
     handleDelete() {
         this.setState({submitted: false})
     };
+
+    handleDateChange(event) {
+        this.setState({date: event.target.value})
+        this.randomData()
+    };
+
+    handleTimeChange(event) {
+        this.setState({'timeInt': parseInt(event.target.value.substr(0,2),10)})
+        this.setState({time: event.target.value})
+    };
+
+    randomData() {
+        let sampleData = []
+        for (let i = 0; i < 24; i++) {
+            if (i < 5) {
+                sampleData.push({'time': '0'+i+':00', 'occupancy': random(0, 0.2)})
+            } else if (i === 23) {
+                sampleData.push({'time': ''+i+':00', 'occupancy': random(0, 0.2)})
+            } else if (i > 4 && i < 7) {
+                sampleData.push({'time': '0'+i+':00', 'occupancy': random(0.2, 0.4)})
+            } else if (i > 6 && i < 10) {
+                sampleData.push({'time': '0'+i+':00', 'occupancy': random(0.4, 0.7)})
+            } else if (i > 9 && i < 16) {
+                sampleData.push({'time': ''+i+':00', 'occupancy': random(0.5, 1)})
+            } else if (i > 15 && i < 20) {
+                sampleData.push({'time': ''+i+':00', 'occupancy': random(0.3, 0.6)})
+            } else if (i > 19 && i < 23) {
+                sampleData.push({'time': ''+i+':00', 'occupancy': random(0.1, 0.3)})
+            }
+        }
+        this.setState({'data': sampleData})
+    }
 
     render() {
         return (
@@ -149,7 +138,7 @@ export default class Application extends Component {
                     getOptionLabel={(option) => option.name}
                     renderInput={(params) => <TextField {...params} label="Choose a Station" variant="outlined" />}
                     style={{'margin': '20px auto 10px'}}
-                    onChange={(event, value) => this.handleChange(value)}
+                    onChange={(event,value) => this.handleChange(value)}
                 />
                 </Grid>
                 <Grid item xs={2}></Grid>
@@ -160,6 +149,7 @@ export default class Application extends Component {
                       label="Date"
                       type="date"
                       defaultValue={this.state.date}
+                      onChange={(event) => this.handleDateChange(event)}
                       InputLabelProps={{
                         shrink: true,
                       }}
@@ -173,6 +163,7 @@ export default class Application extends Component {
                     label="Time"
                     type="time"
                     defaultValue={this.state.time}
+                    onChange={(event) => this.handleTimeChange(event)}
                     InputLabelProps={{
                       shrink: true,
                     }}
@@ -198,11 +189,14 @@ export default class Application extends Component {
                     </Typography>
                     <List >
                       <ListItem style={{'margin': '0px 5px 0px 50px'}}>
-                        <EasyRequest forecast='3'/>
+                        <EasyRequest forecast={this.state.data[this.state.timeInt].occupancy}/>
                       </ListItem>
                       <Divider style={{'margin': '0px 50px 0px 50px'}}/>
+                        <Typography variant="h6" component="h3" style={{'margin': '30px 30px auto'}}>
+                            Expected car traffic in percent on {this.state.date}
+                        </Typography>
                       <ListItem style={{'margin': '0px 5px 0px 50px'}}>
-                        <Day data={this.state.sampleData}/>
+                        <Day data={this.state.data}/>
                       </ListItem>
                       <Divider style={{'margin': '0px 50px 0px 50px'}}/>
                      </List>
@@ -213,3 +207,7 @@ export default class Application extends Component {
         );
     }
 }
+
+function random(min, max) {
+    return min + Math.random() * (max - min);
+  }

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
-import DirectionsCarIcon from '@material-ui/icons/DirectionsCar';
+import Cars from './Cars';
+
 import Typography from '@material-ui/core/Typography';
 import HelpOutlineRoundedIcon from '@material-ui/icons/HelpOutlineRounded';
 import Dialog from '@material-ui/core/Dialog';
@@ -18,21 +19,9 @@ export default class EasyRequest extends Component {
         this.handleInfo = this.handleInfo.bind(this);
 
         this.state = {
-            rating: [],
-            info: false
+            info: false,
+            numbers: [0,0.2,0.4,0.6,0.8,1]
         }
-    }
-
-    componentDidMount() {
-        var arr = [];
-        for(let i = 0; i < 5; i++) {
-            if (i < this.props.forecast) {
-                arr.push(true)
-            } else {
-                arr.push(false)
-            }
-        }
-        this.setState({rating: arr})
     }
 
     handleInfo() {
@@ -44,21 +33,12 @@ export default class EasyRequest extends Component {
     }
 
     render() {
-        const cars = this.state.rating.map((bool) => {
-                if (bool) {
-                    return <DirectionsCarIcon style={{'color':'black'}}/>
-                } else {
-                    return <DirectionsCarIcon style={{'color':'grey'}}/>
-                }
-            }
-        );
-
         return (
             <div>
                 <Typography variant="h6" component="h3">
                     Current Status <Button onClick={this.handleInfo}><HelpOutlineRoundedIcon/> </Button>
                 </Typography>
-                { cars }
+                <Cars rating={this.props.forecast} cars={this.state.numbers}/>
                 {this.state.info &&
                     <Dialog onClose={this.handleClose} open={this.state.info}> 
                          <DialogTitle>Information</DialogTitle>

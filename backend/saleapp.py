@@ -137,9 +137,8 @@ def simple_prediction(station, date):
     return avg #Take note, this isn't multiplied by 100 to convert to percentage
 
 
+
 test_prediction = simple_prediction('Zug', '2019-10-12 22:14')
-
-
 
 
 print(test_prediction)

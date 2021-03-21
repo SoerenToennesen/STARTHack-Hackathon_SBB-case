@@ -6,8 +6,8 @@ export default class Day extends Component {
         return (
             <div style={{'margin':'20px 0px 0px'}}>
                 <AreaChart width={580} height={200} data={this.props.data}>
-                  <Area type="monotone" dataKey="value" stroke="#555555" fill="#ececec" />
-                  <XAxis dataKey="name" />
+                  <Area type="monotone" dataKey="occupancy" stroke="#555555" fill="#ececec" />
+                  <XAxis dataKey="time" />
                   <YAxis />
                 </AreaChart>
             </div>
