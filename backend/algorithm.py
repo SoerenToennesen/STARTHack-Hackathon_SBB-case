@@ -3,6 +3,7 @@
 # pip install datetime
 # pip install pytz
 # pip install pyowm
+# pip install meteomatics
 
 from urllib.request import urlopen
 import json
@@ -11,6 +12,9 @@ import matplotlib.dates as mdates
 import datetime
 import pytz
 from pyowm import OWM
+import requests
+import urllib3
+import os
 
 def add_element(dict, key, value):
     if key not in dict:
@@ -85,6 +89,11 @@ for key in myDict:
         del temp_keyvalue[-2]
         myDict[key] = temp_keyvalue
 
+# Save the number of Burgdorf tickets bought before the Burgdorf acquiring info from the Burgdorf specific database
+# This allows us to roughly calculate how many tickets were bought through the "parking meter", which is the estimation we will use everywhere
+val_before = myDict["Burgdorf"]
+bought_online = len(val_before) - 1
+
 # Extract data from the Burgdorf database and put it in the dictionary myDict
 data5 = json.loads(urlopen("https://data.sbb.ch/api/records/1.0/search/?dataset=parkrail-burgdorf&q=&rows=100").read())
 for i in data5['records']:
@@ -108,6 +117,13 @@ for i in data5['records']:
                 temp_end = datetime.datetime.strptime("2021-02-20T12:36:48", "%Y-%m-%dT%H:%M:%S")
     add_element(myDict, "Burgdorf", [temp_start, temp_end])
 add_element(myDict, "Burgdorf", 115)
+
+# Calculating the factor of difference of what the offline parking-meter yeilds. diff_in_buy will multiplication factor.
+val_after = myDict["Burgdorf"]
+bought_total = len(val_after) - 1
+diff_in_buy = bought_total / bought_online
+if diff_in_buy < 1:
+    diff_in_buy = 1
 
 def check_date_in_range(station, date):
     x = 0
@@ -232,15 +248,41 @@ def prediction(city, date):
     date_pattern = '%Y-%m-%d %H:%M'
     date = datetime.datetime.strptime(date, date_pattern)
     seasonalDict = {"winterbreak" : [datetime.date(year=date.year, month=12, day=23), datetime.date(year=date.year, month=12, day=31)] , "summerbreak" : [datetime.date(year=date.year, month=7, day=12), datetime.date(year=date.year, month=7, day=25)], "springbreak" : [datetime.date(year=date.year, month=3, day=29), datetime.date(year=date.year, month=4, day=4)], "autumnbreak" : [datetime.date(year=date.year, month=10, day=18), datetime.date(year=date.year, month=10, day=24)]}
-    
+
     holiday_date = 1
     for key in seasonalDict:
-        if seasonalDict[key][0] <= date <= seasonalDict[key][1]:
+        if seasonalDict[key][0] <= date.date() <= seasonalDict[key][1]:
             holiday_date = 1.2
             break
-    
+
+    global weather_response
+    global weather_url
+    token_url = "https://sso-int.sbb.ch/auth/realms/SBB_Public/protocol/openid-connect/token"
+    client_id = 'df3fa736'
+    client_secret = '15a45c13f35913d407d3a3faef9cda5e'
+    data = {'grant_type': 'client_credentials'}
+    access_token_response = requests.post(token_url, data=data, verify=False, allow_redirects=False, auth=(client_id, client_secret))
+    tokens = json.loads(access_token_response.text)
+    api_call_headers = {'Authorization': 'Bearer ' + tokens['access_token']}
+    var1 = pytz.UTC.localize(date)
+    var1 = str(var1).replace('+00:00', 'Z')
+    var1 = var1.replace(' ', 'T')
+    var2 = pytz.UTC.localize(date + datetime.timedelta(hours=1))
+    var2 = str(var2).replace('+00:00', 'Z')
+    var2 = var2.replace(' ', 'T')
+    weather_url = f'https://weather-int.api.sbb.ch/{var1}--{var2}:PT1H/fresh_snow_6h:cm,fresh_snow_1h:cm/46.50389,8.30325/json'
+    #weather_url = f'https://weather-int.api.sbb.ch/2021-02-15T00:00:00Z--2021-03-4T00:00:00Z:PT1H/fresh_snow_6h:cm,fresh_snow_1h:cm/46.50389,8.30325/csv'
+    #print (weather_url)
+    weather_response = requests.get(weather_url,headers=api_call_headers)
+    print(weather_response)
+
     # based on simple_algo and weather_conditions and if the date is during a holiday
-    final_prediction = test_prediction * (1 + weather_weight) * holiday_date
+    if city == "Burgdorf":
+        final_prediction = (test_prediction) * (1 + weather_weight) * holiday_date
+    else:
+        final_prediction = (test_prediction * diff_in_buy) * (1 + weather_weight) * holiday_date
+    if final_prediction > 1:
+        final_prediction = 1
     
     return final_prediction * 100, int(myDict[city][-1])
 
@@ -271,8 +313,9 @@ print(ans)
 # - Seasons, currently 4 seasons implemented; (1) winterbreak / christmas, (2) springbreak / easter, (3) summerbreak (the most busy week (29)), and (4) autumnbreak
 #   If a requested date prediction falls under a season, a 20% occupancy increase of the current prediction will be added, as more people travel during the holidays.
 #   More seasons and weights can be implemented, but this is a simply model that also encapsulates this parameter
+# - We estimated the tickets bought from the parking meter (offline) from the amount of tickets in the Bergdorf before and after the Bergdorf specific dataset was included.
+#   We thus estimated the parking meter multiplier to be 13.625 which we used on other stations as well.
 # THE ALGORITHM IS NOT PERFECT DUE TO INSUFFICIENT DATA, ALTHOUGH IF A MORE REALISTIC PREDICTION SHOULD BE TAKEN, THEN BURGDORF HAS PLENTIFUL DATA FOR THE FIRST 2 MONTHS OF 2021, AND CAN BE USED FOR PREDICTION FOR THIS PARTICULAR STATION.
 # (remember to increase the API feeds - currently they are all set at 100, but should be increased to the max avaliable or the max possible (10000))... alternatively the datasets can be downloaded so all rows can be used and seen in action
 
 #TODO: Specify date for the weather parameter
-#TODO: Predict how many tickets are sold by "stupid" parking meter at other train stations
