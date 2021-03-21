@@ -42,7 +42,7 @@ The authors and developers of this project are:
 
 Michelle S. Lee
 
-lions-code
+Lion Grabau
 
 Fuego
 
