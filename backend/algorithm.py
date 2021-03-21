@@ -297,6 +297,9 @@ ans = prediction('Burgdorf', '2021-02-27 12:00')
 print("Burgdorf @ 2021-02-27 12:00")
 print(ans)
 
+# REMEMBER TO CHANGE THE ROW EXTRACT VALUES FROM THE DATASET FETCHES (CURRENTLY ONLY 100).
+# THIS IS REQUIRED TO GET ANY MEANINGFUL DATA
+
 # Examples of extracting data (assuming data is correct and valid) from the created dictionary
 # - print(myDict['Zug']) #Shows all relevant information pertaining to the specified station
 # - print(myDict['Zug'][0]) #Shows one entry of a occupied time slot in the specified station
