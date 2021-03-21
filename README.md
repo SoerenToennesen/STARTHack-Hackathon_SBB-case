@@ -32,6 +32,10 @@ A video of our pitch can be found at:
 
 https://www.youtube.com/watch?v=l4dAfJDMBnc&feature=emb_logo&ab_channel=MichelleLee
 
+The finalized hand-in is found at:
+
+https://app.hackjunction.com/projects/start-hack/view/6055b89a4aa8b7004355cab6
+
 ## Contributors
 
 The authors and developers of this project are:
@@ -43,3 +47,5 @@ lions-code
 Fuego
 
 Søren Tønnesen
+
+A special thanks to SBB for the case and STARTHack for the hackathon opportunity!
